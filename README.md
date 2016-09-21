@@ -82,7 +82,6 @@ Tested on APIs
 
 ## OVH Europe
 
- * ```$endpoint = 'ovh-eu';```
  * Documentation: https://eu.api.ovh.com/
  * Community support: api-subscribe@ml.ovh.net
  * Console: https://eu.api.ovh.com/console
