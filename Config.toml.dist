@@ -1,0 +1,7 @@
+[default]
+endpoint = "ovh-eu"
+
+[ovh-eu]
+application_key = "ak"
+application_secret = "as"
+consumer_key = "ck"

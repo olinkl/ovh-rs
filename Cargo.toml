@@ -1,0 +1,24 @@
+[package]
+name = "ovh"
+version = "0.1.0"
+authors = ["Adrien Bensaibi <olinkl@stayfoc.us>"]
+license-file = "LICENSE"
+readme = "README.md"
+repository = "https://github.com/olinkl/ovh-rs"
+homepage = "https://github.com/olinkl/ovh-rs"
+keywords = ["ovh"]
+description = """
+A native wrapper for OVH's APIs that handle request signing.
+"""
+
+[dependencies]
+serde = "0.8.8"
+serde_json = "0.8.2"
+chrono = "^0.2"
+rust-crypto = "^0.2"
+log = "0.3.6"
+toml = "^0.2"
+env_logger = "^0.3"
+
+[dependencies.hyper]
+version = "0.9.10"
