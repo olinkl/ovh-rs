@@ -65,7 +65,7 @@ How to run tests?
 -----------------
 
 ```bash
-RUST_LOG=rust-ovh=info cargo test
+cargo test
 ```
 
 How to build doc?

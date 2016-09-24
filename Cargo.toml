@@ -12,8 +12,8 @@ A native wrapper for OVH's APIs that handle request signing.
 """
 
 [dependencies]
-serde = "0.8.8"
-serde_json = "0.8.2"
+serde = "0.8"
+serde_json = "0.8"
 chrono = "^0.2"
 rust-crypto = "^0.2"
 log = "0.3.6"
@@ -21,4 +21,4 @@ toml = "^0.2"
 env_logger = "^0.3"
 
 [dependencies.hyper]
-version = "0.9.10"
+version = "0.9"

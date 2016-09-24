@@ -137,7 +137,7 @@ impl OVHClient {
         headers.set(ContentType(Mime(TopLevel::Application,
                                      SubLevel::Json,
                                      vec![(Attr::Charset, Value::Utf8)])));
-        headers.set(UserAgent("hyper/0.9.10/ovh-rs".to_owned()));
+        headers.set(UserAgent("hyper/0.9/ovh-rs".to_owned()));
 
         // Create a client.
         let client = Client::new();
