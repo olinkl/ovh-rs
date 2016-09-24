@@ -218,10 +218,7 @@ mod tests {
         let ovh = OVHClient::new();
         let cred = ovh.credential;
 
-        let response = OVHClient::request(&cred,
-                                          "GET",
-                                          "/ipLoadbalancing",
-                                          "");
+        let response = OVHClient::request(&cred, "GET", "/ipLoadbalancing", "");
         // should assert after json parse
         let deser_value: self::serde_json::Value = serde_json::from_str(&response).unwrap();
         assert_eq!(true, deser_value.is_array());
@@ -233,10 +230,7 @@ mod tests {
         let cred = ovh.credential;
 
         let mut body = "{\"ovhSubsidiary\": \"FR\"}";
-        let mut response = OVHClient::request(&cred,
-                                          "POST",
-                                          "/order/cart",
-                                          &body);
+        let mut response = OVHClient::request(&cred, "POST", "/order/cart", &body);
         // should assert after json parse
         let deser_value: self::serde_json::Value = serde_json::from_str(&response).unwrap();
         assert_eq!(true, deser_value.is_object());
@@ -244,29 +238,24 @@ mod tests {
         assert_eq!(true, obj.get("cartId").unwrap().is_string());
         assert_eq!(true, obj.get("expire").unwrap().is_string());
         assert_eq!(true, obj.get("description").unwrap().is_string());
-        assert_eq!("Default cart", obj.get("description").unwrap().as_str().unwrap());
+        assert_eq!("Default cart",
+                   obj.get("description").unwrap().as_str().unwrap());
         assert_eq!(true, obj.get("readOnly").unwrap().is_boolean());
         assert_eq!(true, obj.get("items").unwrap().is_array());
 
-        //test_get_with_query
+        // test_get_with_query
         let cart_id = obj.get("cartId").unwrap().as_str().unwrap();
         let mut url = "/order/cart/".to_string() + cart_id + "/domain?domain=rustyrust.fr";
 
-        response = OVHClient::request(&cred,
-                                          "GET",
-                                          &url,
-                                          "");
+        response = OVHClient::request(&cred, "GET", &url, "");
         let deser_value: self::serde_json::Value = serde_json::from_str(&response).unwrap();
         // should assert after json parse
         assert_eq!(true, deser_value.is_array());
 
-        //test_put
+        // test_put
         url = "/order/cart/".to_string() + cart_id;
         body = "{\"description\": \"a new rust cart description\"}";
-        response = OVHClient::request(&cred,
-                                          "PUT",
-                                          &url,
-                                          &body);
+        response = OVHClient::request(&cred, "PUT", &url, &body);
         // should assert after json parse
         let deser_value: self::serde_json::Value = serde_json::from_str(&response).unwrap();
         assert_eq!(true, deser_value.is_object());
@@ -274,26 +263,21 @@ mod tests {
         assert_eq!(true, obj.get("cartId").unwrap().is_string());
         assert_eq!(true, obj.get("expire").unwrap().is_string());
         assert_eq!(true, obj.get("description").unwrap().is_string());
-        assert_eq!("a new rust cart description", obj.get("description").unwrap().as_str().unwrap());
+        assert_eq!("a new rust cart description",
+                   obj.get("description").unwrap().as_str().unwrap());
         assert_eq!(true, obj.get("readOnly").unwrap().is_boolean());
         assert_eq!(true, obj.get("items").unwrap().is_array());
 
-        //test assign
+        // test assign
         url = "/order/cart/".to_string() + cart_id + "/assign";
         body = "";
-        response = OVHClient::request(&cred,
-                                          "POST",
-                                          &url,
-                                          &body);
+        response = OVHClient::request(&cred, "POST", &url, &body);
         assert_eq!("null", response);
 
-        //test_delete
+        // test_delete
         url = "/order/cart/".to_string() + cart_id;
         body = "";
-        response = OVHClient::request(&cred,
-                                          "DELETE",
-                                          &url,
-                                          &body);
+        response = OVHClient::request(&cred, "DELETE", &url, &body);
         assert_eq!("null", response);
     }
 

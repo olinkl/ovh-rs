@@ -42,11 +42,15 @@ fn read_from_path<'a, P: AsRef<Path>>(owner: &'a mut String,
         None => panic!("Cannot parse toml content"),
         Some(_toml) => _toml,
     };
-    let endpoint: toml::Value = toml.get("default").unwrap().lookup("endpoint").unwrap().clone();
-    let endp: String = endpoint.as_str().unwrap().to_string();
-    let host = host2host(endp.clone());
+    let endpoint: toml::Value = toml.get("default")
+        .unwrap()
+        .lookup("endpoint")
+        .unwrap()
+        .clone();
+    let _endpoint: &str = &endpoint.as_str().unwrap();
+    let host = endpoint2host(_endpoint);
 
-    Ok((host, toml.get(endp.as_str()).unwrap().clone()))
+    Ok((host, toml.get(_endpoint).unwrap().clone()))
 }
 
 impl Credential {
@@ -101,11 +105,15 @@ impl Credential {
     }
 
     /// Initialize a new `Credential` from given an App Key and App secret.
-    pub fn new_with_application(application_key: &str, application_secret: &str) -> Credential {
+    pub fn new_with_application(endpoint: &str,
+                                application_key: &str,
+                                application_secret: &str)
+                                -> Credential {
+        let host = endpoint2host(endpoint);
         Credential {
             toml: None,
             path: None,
-            host: String::from("eu.api.ovh.com"),
+            host: String::from(host),
             application_key: String::from(application_key),
             application_secret: String::from(application_secret),
             consumer_key: String::from(""),
@@ -113,14 +121,16 @@ impl Credential {
     }
 
     /// Initialize a new `Credential` from given an App Key, App Secret, and Consumer Key.
-    pub fn new_with_credential(application_key: &str,
+    pub fn new_with_credential(endpoint: &str,
+                               application_key: &str,
                                application_secret: &str,
                                consumer_key: &str)
                                -> Credential {
+        let host = endpoint2host(endpoint);
         Credential {
             toml: None,
             path: None,
-            host: String::from("eu.api.ovh.com"),
+            host: host,
             application_key: String::from(application_key),
             application_secret: String::from(application_secret),
             consumer_key: String::from(consumer_key),
@@ -128,11 +138,11 @@ impl Credential {
     }
 }
 
-fn host2host(host: String) -> String {
-    match host.as_ref() {
+fn endpoint2host(endpoint: &str) -> String {
+    match endpoint.as_ref() {
         "ovh-eu" => "eu.api.ovh.com".to_string(),
         "ovh-ca" => "ca.api.ovh.com".to_string(),
-        _ => "".to_string(),
+        _ => "api.ovh.com".to_string(),
     }
 }
 
