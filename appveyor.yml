@@ -12,14 +12,13 @@ environment:
     - TARGET: i686-pc-windows-msvc
       CHANNEL: stable
       BITS: 32
-    - TARGET: x86_64-pc-windows-gnu
-      CHANNEL: stable
-      BITS: 64
     - TARGET: x86_64-pc-windows-msvc
       CHANNEL: stable
       BITS: 64
 
 install:
+  - nuget install secure-file -ExcludeVersion
+  - secure-file\tools\secure-file -decrypt Config2.toml.enc -secret %secret% -out Config.toml
   - ps: Start-FileDownload "http://slproweb.com/download/Win${env:BITS}OpenSSL-1_0_2i.exe"
   - Win%BITS%OpenSSL-1_0_2i.exe /SILENT /VERYSILENT /SP- /DIR="C:\OpenSSL"
   - ps: $env:RUST_VERSION = "1.11.0"

@@ -1,4 +1,4 @@
-# OVH-rs [![Build Status](https://travis-ci.org/Olinkl/ovh-rs.svg?branch=master)](https://travis-ci.org/Olinkl/ovh-rs)
+# OVH-rs [![Build Status](https://travis-ci.org/Olinkl/ovh-rs.svg?branch=master)](https://travis-ci.org/Olinkl/ovh-rs) [![Build status](https://ci.appveyor.com/api/projects/status/ak1na5wa60tcw0j2/branch/master?svg=true)](https://ci.appveyor.com/project/Olinkl/ovh-rs/branch/master)
 
 A lightweight wrapper around OVH's APIs.
 
