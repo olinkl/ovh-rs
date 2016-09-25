@@ -18,39 +18,11 @@ environment:
     - TARGET: x86_64-pc-windows-msvc
       CHANNEL: stable
       BITS: 64
-    # Beta channel
-    - TARGET: i686-pc-windows-gnu
-      CHANNEL: beta
-      BITS: 32
-    - TARGET: i686-pc-windows-msvc
-      CHANNEL: beta
-      BITS: 32
-    - TARGET: x86_64-pc-windows-gnu
-      CHANNEL: beta
-      BITS: 64
-    - TARGET: x86_64-pc-windows-msvc
-      CHANNEL: beta
-      BITS: 64
-    # Nightly channel
-    - TARGET: i686-pc-windows-gnu
-      CHANNEL: nightly
-      BITS: 32
-    - TARGET: i686-pc-windows-msvc
-      CHANNEL: nightly
-      BITS: 32
-    - TARGET: x86_64-pc-windows-gnu
-      CHANNEL: nightly
-      BITS: 64
-    - TARGET: x86_64-pc-windows-msvc
-      CHANNEL: nightly
-      BITS: 64
 
 install:
   - ps: Start-FileDownload "http://slproweb.com/download/Win${env:BITS}OpenSSL-1_0_2i.exe"
   - Win%BITS%OpenSSL-1_0_2i.exe /SILENT /VERYSILENT /SP- /DIR="C:\OpenSSL"
-  - ps: Start-FileDownload "https://static.rust-lang.org/dist/channel-rust-stable"
-  - ps: $env:RUST_VERSION = Get-Content channel-rust-stable | select -first 1 | %{$_.split('-')[1]}
-  - if NOT "%CHANNEL%" == "stable" set RUST_VERSION=%CHANNEL%
+  - ps: $env:RUST_VERSION = "1.11.0"
   - ps: Start-FileDownload "https://static.rust-lang.org/dist/rust-${env:RUST_VERSION}-${env:TARGET}.exe"
   - rust-%RUST_VERSION%-%TARGET%.exe /VERYSILENT /NORESTART /DIR="C:\Program Files (x86)\Rust"
   - SET PATH=%PATH%;C:\Program Files (x86)\Rust\bin
