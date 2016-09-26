@@ -87,7 +87,10 @@ impl OVHClient {
             .unwrap();
         let mut body = String::new();
         res.read_to_string(&mut body).unwrap();
-        body.parse::<u64>().unwrap()
+        match body.parse::<u64>() {
+            Ok(time) => time,
+            Err(_) => 1,
+        }
     }
 
     /// compute delta time
@@ -98,9 +101,14 @@ impl OVHClient {
             .parse::<u64>()
             .unwrap();
         let remotetime = OVHClient::remote_time();
-        let deltatime = remotetime - localtime;
-        info!("Delta time: {:?}", deltatime);
-        deltatime
+        if remotetime <= localtime {
+            info!("fail to fetch remote time");
+            0
+        } else {
+            let deltatime = remotetime - localtime;
+            info!("Delta time: {:?}", deltatime);
+            deltatime
+        }
     }
 
     /// Start a client request with given method
@@ -196,7 +204,6 @@ mod tests {
 
     #[test]
     fn test_build_sig() {
-        let _ovh = OVHClient::new();
         let method = "GET";
         let query = "https://eu.api.ovh.com/1.0/ipLoadbalancing";
         let body = "";
