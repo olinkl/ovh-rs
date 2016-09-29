@@ -13,7 +13,7 @@ rust:
 matrix:
   include:
   - os: linux
-    rust: 1.11.0
+    rust: 1.12.0
     script: cargo test
 before_install:
 - openssl aes-256-cbc -K $encrypted_844d74e86345_key -iv $encrypted_844d74e86345_iv
