@@ -1,4 +1,4 @@
-# OVH-rs [![Build Status](https://travis-ci.org/Olinkl/ovh-rs.svg?branch=master)](https://travis-ci.org/Olinkl/ovh-rs) [![Build status](https://ci.appveyor.com/api/projects/status/ak1na5wa60tcw0j2/branch/master?svg=true)](https://ci.appveyor.com/project/Olinkl/ovh-rs/branch/master)
+# OVH-rs [![Build Status](https://travis-ci.org/Olinkl/ovh-rs.svg?branch=master)](https://travis-ci.org/Olinkl/ovh-rs) [![Build status](https://ci.appveyor.com/api/projects/status/ak1na5wa60tcw0j2/branch/master?svg=true)](https://ci.appveyor.com/project/Olinkl/ovh-rs/branch/master) [![Coverage Status](https://coveralls.io/repos/github/Olinkl/ovh-rs/badge.svg?branch=master)](https://coveralls.io/github/Olinkl/ovh-rs?branch=master) [![License MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/Olinkl/ovh-rs/blob/master/LICENSE)
 
 A lightweight wrapper around OVH's APIs.
 

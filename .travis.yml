@@ -1,27 +1,52 @@
 sudo: false
 language: rust
-dist: trusty
 git:
   depth: 3
 branches:
   only:
   - master
+addons:
+  apt:
+    packages:
+      - libcurl4-openssl-dev
+      - libelf-dev
+      - libdw-dev
+      - binutils-dev # optional: only required for the --verify flag of coveralls
 rust:
-- stable
-- beta
-- nightly
+  - stable
+  - beta
+  - nightly
+
+# load travis-cargo
+before_script:
+  - |
+      pip install 'travis-cargo<0.2' --user &&
+      export PATH=$HOME/.local/bin:$PATH
 matrix:
   include:
   - os: linux
     rust: 1.12.0
     script: cargo test
+
 before_install:
 - openssl aes-256-cbc -K $encrypted_844d74e86345_key -iv $encrypted_844d74e86345_iv
   -in Config.toml.enc -out Config.toml -d
+
 script:
-- cargo build --verbose
-- cargo test --verbose
-- cargo doc --no-deps
+  - |
+      travis-cargo build &&
+      travis-cargo test &&
+      travis-cargo bench &&
+      travis-cargo --only stable doc
+
+after_success:
+  # upload the documentation from the build with stable (automatically only actually
+  # runs on the master branch, not individual PRs)
+  - travis-cargo --only stable doc-upload
+  # measure code coverage and upload to coveralls.io (the verify
+  # argument mitigates kcov crashes due to malformed debuginfo, at the
+  # cost of some speed <https://github.com/huonw/travis-cargo/issues/12>)
+  - travis-cargo coveralls --no-sudo --verify
 os:
-- linux
-- osx
+  - linux
+  - osx
