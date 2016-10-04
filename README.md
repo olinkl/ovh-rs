@@ -7,8 +7,8 @@ Handles credential management and requests signing.
 Prerequisites
 ------------
 
-Considere using stable Rust
-Tested only on Linux, Windows coming.
+Considere using stable Rust.
+Tested on Linux, Windows, MacOSX.
 
 Quickstart
 ----------
