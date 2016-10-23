@@ -19,7 +19,7 @@ rust:
   - stable
   - beta
   - nightly
-  - 1.12.0
+  - 1.12.1
 
 os:
   - linux
