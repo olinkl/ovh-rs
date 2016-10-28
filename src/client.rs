@@ -10,10 +10,19 @@ extern crate serde_json;
 use config::Credential;
 use std::io::Read;
 
+#[cfg(not(feature = "curl"))]
 use reqwest;
+#[cfg(not(feature = "curl"))]
 use reqwest::Response;
+#[cfg(not(feature = "curl"))]
 use hyper::header::{Headers, UserAgent, Accept, qitem, ContentType};
+#[cfg(not(feature = "curl"))]
 use hyper::mime::{Value, Mime, TopLevel, SubLevel, Attr};
+
+#[cfg(feature = "curl")]
+use curl;
+#[cfg(feature = "curl")]
+use curl::easy::{Easy, List};
 
 use chrono::*;
 
@@ -32,8 +41,11 @@ pub struct OVHClient {
 }
 
 impl OVHClient {
+
     /// Initialize a new `Credential` from default path a App Key, App secret, Consumer token.
     pub fn new() -> OVHClient {
+        #[cfg(feature = "curl")]
+        curl::init();
         OVHClient { credential: Credential::new() }
     }
 
@@ -75,6 +87,7 @@ impl OVHClient {
     }
 
     /// Ask time to OVH API server to compute delta time
+    #[cfg(not(feature = "curl"))]
     fn remote_time() -> u64 {
         let query = "https://eu.api.ovh.com/1.0/auth/time".to_string();
         // Create a client.
@@ -84,8 +97,38 @@ impl OVHClient {
         let mut res = client.get(&query)
             .send()
             .unwrap();
+
         let mut body = String::new();
         res.read_to_string(&mut body).unwrap();
+
+        match body.parse::<u64>() {
+            Ok(time) => time,
+            Err(_) => 1,
+        }
+    }
+
+    /// Ask time to OVH API server to compute delta time
+    #[cfg(feature = "curl")]
+    fn remote_time() -> u64 {
+        let query = "https://eu.api.ovh.com/1.0/auth/time".to_string();
+        // Create a client.
+        let mut client = Easy::new();
+        client.timeout(Duration::seconds(20).to_std().unwrap());
+
+        let mut response_data = Vec::new();
+        client.url(&query).unwrap();
+        client.get(true).unwrap();
+        {
+            let mut transfer = client.transfer();
+            transfer.write_function(|buf| {
+                response_data.extend_from_slice(buf);
+                Ok(buf.len())
+            }).unwrap();
+            transfer.perform().unwrap();
+        }
+        let body = String::from_utf8(response_data).unwrap();
+        println!("{:?}", &body);
+
         match body.parse::<u64>() {
             Ok(time) => time,
             Err(_) => 1,
@@ -111,7 +154,8 @@ impl OVHClient {
     }
 
     /// Start a client request with given method
-    /// Use Hyper client, maybe curl-rs in later version
+    /// Use Hyper client
+    #[cfg(not(feature = "curl"))]
     pub fn request(credential: &Credential, method: &str, query: &str, body: &str) -> String {
         let localtime = Local::now().format("%s").to_string().parse::<u64>().unwrap();
         let computed_time = localtime + OVHClient::compute_time_delta();
@@ -192,6 +236,124 @@ impl OVHClient {
         let mut body = String::new();
         res.unwrap().read_to_string(&mut body).unwrap();
         body
+    }
+
+    #[cfg(feature= "curl")]
+    pub fn request(credential: &Credential, method: &str, query: &str, body: &str) -> String {
+
+        let localtime = Local::now().format("%s").to_string().parse::<u64>().unwrap();
+        let computed_time = localtime + OVHClient::compute_time_delta();
+        let timestamp = computed_time.to_string();
+
+        let mut _body = body.as_bytes();
+
+        let protocol = "https://".to_string();
+        let base_path = "/1.0";
+        let url = protocol + &credential.host + &base_path + &query;
+        let sign = OVHClient::build_sig(&method,
+                                        &url,
+                                        &body,
+                                        &timestamp,
+                                        credential.application_secret.as_str(),
+                                        credential.consumer_key.as_str());
+
+        // build headers
+        let mut headers = List::new();
+        headers.append(&("X-Ovh-Application: ".to_string() + &credential.application_key)).unwrap();
+        headers.append(&("X-Ovh-Timestamp: ".to_string() + &timestamp)).unwrap();
+        headers.append(&("X-Ovh-Signature: ".to_string() + &sign)).unwrap();
+        headers.append(&("X-Ovh-Consumer: ".to_string() + &credential.consumer_key)).unwrap();
+        headers.append("Accept: application/json; charset=utf-8").unwrap();
+        headers.append("User-Agent: ovh-rs/libcurl/7.35.0").unwrap();
+
+        println!("{:?}", sign.to_string());
+        debug!("Signature: {}", sign.to_string());
+
+        let mut client = Easy::new();
+        client.timeout(Duration::seconds(20).to_std().unwrap());
+
+        let mut response_data = Vec::new();
+        client.url(&url).unwrap();
+
+        let resp = match method {
+            "GET" => {
+                client.http_headers(headers).unwrap();
+                client.get(true).unwrap();
+                {
+                    let mut transfer = client.transfer();
+                    transfer.write_function(|buf| {
+                        response_data.extend_from_slice(buf);
+                        Ok(buf.len())
+                    }).unwrap();
+                    transfer.perform().unwrap();
+                }
+                let resp = String::from_utf8(response_data).unwrap();
+                println!("{:?}", resp);
+                resp
+            }
+            "POST" => {
+
+                headers.append("Content-Type: application/json").unwrap();
+                client.http_headers(headers).unwrap();
+
+                client.post(true).unwrap();
+                client.post_field_size(_body.len() as u64).unwrap();
+                {
+                    let mut transfer = client.transfer();
+                    transfer.read_function(|buf| {
+                        Ok(_body.read(buf).unwrap_or(0))
+                    }).unwrap();
+                    transfer.write_function(|buf| {
+                        response_data.extend_from_slice(buf);
+                        Ok(buf.len())
+                    }).unwrap();
+                    transfer.perform().unwrap();
+                }
+                let resp = String::from_utf8(response_data).unwrap();
+                println!("{:?}", resp);
+                resp
+            }
+            "PUT" => {
+                headers.append("Content-Type: application/json").unwrap();
+                client.http_headers(headers).unwrap();
+
+                client.put(true).unwrap();
+                client.post_field_size(_body.len() as u64).unwrap();
+                {
+                    let mut transfer = client.transfer();
+                    transfer.read_function(|buf| {
+                        Ok(_body.read(buf).unwrap_or(0))
+                    }).unwrap();
+                    transfer.write_function(|buf| {
+                        response_data.extend_from_slice(buf);
+                        Ok(buf.len())
+                    }).unwrap();
+                    transfer.perform().unwrap();
+                }
+                let resp = String::from_utf8(response_data).unwrap();
+                println!("{:?}", resp);
+                resp
+
+            }
+            "DELETE" => {
+                client.http_headers(headers).unwrap();
+                client.custom_request("DELETE");
+                client.nobody(true).unwrap();
+                {
+                    let mut transfer = client.transfer();
+                    transfer.write_function(|buf| {
+                        response_data.extend_from_slice(buf);
+                        Ok(buf.len())
+                    }).unwrap();
+                    transfer.perform().unwrap();
+                }
+                let resp = String::from_utf8(response_data).unwrap();
+                println!("{:?}", resp);
+                "null".to_string()
+            }
+            _ => "".to_string(),
+        };
+        resp
     }
 }
 
