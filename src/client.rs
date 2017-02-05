@@ -127,7 +127,6 @@ impl OVHClient {
             transfer.perform().unwrap();
         }
         let body = String::from_utf8(response_data).unwrap();
-        println!("{:?}", &body);
 
         match body.parse::<u64>() {
             Ok(time) => time,
@@ -188,7 +187,7 @@ impl OVHClient {
         headers.set(ContentType(Mime(TopLevel::Application,
                                      SubLevel::Json,
                                      vec![(Attr::Charset, Value::Utf8)])));
-        headers.set(UserAgent("hyper/0.10/ovh-rs".to_owned()));
+        headers.set(UserAgent("OVH-rs/hyper/0.10".to_owned()));
 
         // Create a client.
         let client = reqwest::Client::new().unwrap();
@@ -245,6 +244,7 @@ impl OVHClient {
         let computed_time = localtime + OVHClient::compute_time_delta();
         let timestamp = computed_time.to_string();
 
+        //to transfer body
         let mut _body = body.as_bytes();
 
         let protocol = "https://".to_string();
@@ -264,9 +264,8 @@ impl OVHClient {
         headers.append(&("X-Ovh-Signature: ".to_string() + &sign)).unwrap();
         headers.append(&("X-Ovh-Consumer: ".to_string() + &credential.consumer_key)).unwrap();
         headers.append("Accept: application/json; charset=utf-8").unwrap();
-        headers.append("User-Agent: ovh-rs/libcurl/7.35.0").unwrap();
+        headers.append("User-Agent: OVH-rs/curl-rust/0.4").unwrap();
 
-        println!("{:?}", sign.to_string());
         debug!("Signature: {}", sign.to_string());
 
         let mut client = Easy::new();
@@ -274,8 +273,8 @@ impl OVHClient {
 
         let mut response_data = Vec::new();
         client.url(&url).unwrap();
-
-        let resp = match method {
+ 
+        let resp : Result<String, String> = match method {
             "GET" => {
                 client.http_headers(headers).unwrap();
                 client.get(true).unwrap();
@@ -288,8 +287,7 @@ impl OVHClient {
                     transfer.perform().unwrap();
                 }
                 let resp = String::from_utf8(response_data).unwrap();
-                println!("{:?}", resp);
-                resp
+                Ok(resp)
             }
             "POST" => {
 
@@ -310,8 +308,7 @@ impl OVHClient {
                     transfer.perform().unwrap();
                 }
                 let resp = String::from_utf8(response_data).unwrap();
-                println!("{:?}", resp);
-                resp
+                Ok(resp)
             }
             "PUT" => {
                 headers.append("Content-Type: application/json").unwrap();
@@ -331,8 +328,7 @@ impl OVHClient {
                     transfer.perform().unwrap();
                 }
                 let resp = String::from_utf8(response_data).unwrap();
-                println!("{:?}", resp);
-                resp
+                Ok(resp)
 
             }
             "DELETE" => {
@@ -348,12 +344,12 @@ impl OVHClient {
                     transfer.perform().unwrap();
                 }
                 let resp = String::from_utf8(response_data).unwrap();
-                println!("{:?}", resp);
-                "null".to_string()
+                //to return like API
+                Ok("null".to_string())
             }
-            _ => "".to_string(),
+            _ => Err("bad method".to_string()),
         };
-        resp
+        resp.unwrap()
     }
 }
 

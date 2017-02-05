@@ -1,6 +1,6 @@
 [package]
 name = "ovh"
-version = "0.2.0"
+version = "0.3.0"
 authors = ["Adrien Bensaibi <olinkl@stayfoc.us>"]
 license-file = "LICENSE"
 readme = "README.md"
