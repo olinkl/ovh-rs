@@ -10,8 +10,8 @@
 extern crate chrono;
 extern crate crypto;
 
-#[macro_use]
-extern crate hyper;
+#[macro_use] extern crate hyper;
+#[macro_use] extern crate reqwest;
 
 #[macro_use]
 extern crate log;

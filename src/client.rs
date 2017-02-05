@@ -10,11 +10,10 @@ extern crate serde_json;
 use config::Credential;
 use std::io::Read;
 
+use reqwest;
+use reqwest::Response;
 use hyper::header::{Headers, UserAgent, Accept, qitem, ContentType};
 use hyper::mime::{Value, Mime, TopLevel, SubLevel, Attr};
-use hyper::client::Response;
-use hyper::client::Client;
-use hyper;
 
 use chrono::*;
 
@@ -79,7 +78,7 @@ impl OVHClient {
     fn remote_time() -> u64 {
         let query = "https://eu.api.ovh.com/1.0/auth/time".to_string();
         // Create a client.
-        let client = Client::new();
+        let client = reqwest::Client::new().unwrap();
 
         // Creating an outgoing request.
         let mut res = client.get(&query)
@@ -145,15 +144,15 @@ impl OVHClient {
         headers.set(ContentType(Mime(TopLevel::Application,
                                      SubLevel::Json,
                                      vec![(Attr::Charset, Value::Utf8)])));
-        headers.set(UserAgent("hyper/0.9/ovh-rs".to_owned()));
+        headers.set(UserAgent("hyper/0.10/ovh-rs".to_owned()));
 
         // Create a client.
-        let client = Client::new();
+        let client = reqwest::Client::new().unwrap();
 
         debug!("Signature: {}", sign.to_string());
 
         // Creating an outgoing request.
-        let res: Result<Response, hyper::Error> = match method {
+        let res: Result<Response, reqwest::Error> = match method {
             "HEAD" => {
                 client.head(&url)
                     .headers(headers)
@@ -171,24 +170,24 @@ impl OVHClient {
                     .send()
             }
             "PUT" => {
-                client.put(&url)
+                client.request(reqwest::Method::Put, &url)
                     .headers(headers)
                     .body(body)
                     .send()
             }
             "PATCH" => {
-                client.patch(&url)
+                client.request(reqwest::Method::Patch, &url)
                     .headers(headers)
                     .body(body)
                     .send()
             }
             "DELETE" => {
-                client.delete(&url)
+                client.request(reqwest::Method::Delete, &url)
                     .headers(headers)
                     .body(body)
                     .send()
             }
-            _ => Err(hyper::Error::Method),
+            _ => Err(reqwest::Error::Http(reqwest::HyperError::Method)),
         };
         let mut body = String::new();
         res.unwrap().read_to_string(&mut body).unwrap();
