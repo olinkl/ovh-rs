@@ -1,6 +1,6 @@
 [package]
 name = "ovh"
-version = "0.1.0"
+version = "0.2.0"
 authors = ["Adrien Bensaibi <olinkl@stayfoc.us>"]
 license-file = "LICENSE"
 readme = "README.md"
@@ -12,13 +12,13 @@ A native wrapper for OVH's APIs that handle request signing.
 """
 
 [dependencies]
-serde = "0.8"
-serde_json = "0.8"
+serde = "^0.9"
+serde_json = "^0.9"
 chrono = "^0.2"
 rust-crypto = "^0.2"
 log = "0.3.6"
 toml = "^0.2"
-env_logger = "^0.3"
+env_logger = "^0.4"
 
 [dependencies.hyper]
-version = "0.9"
+version = "^0.10"
