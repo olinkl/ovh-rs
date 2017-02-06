@@ -1,15 +1,23 @@
 [package]
 name = "ovh"
-version = "0.2.0"
+version = "0.3.0"
 authors = ["Adrien Bensaibi <olinkl@stayfoc.us>"]
 license-file = "LICENSE"
 readme = "README.md"
+keywords = ["ovh","api"]
+categories = ["api-bindings"]
 repository = "https://github.com/olinkl/ovh-rs"
 homepage = "https://github.com/olinkl/ovh-rs"
-keywords = ["ovh"]
 description = """
 A native wrapper for OVH's APIs that handle request signing.
 """
+
+[badges]
+travis-ci = { repository = "olinkl/ovh-rs" }
+appveyor = { repository = "olinkl/ovh-rs" }
+
+[features]
+default = ["reqwest"]
 
 [dependencies]
 serde = "^0.9"
@@ -25,3 +33,8 @@ version = "^0.10"
 
 [dependencies.reqwest]
 version = "^0.4"
+optional = true
+
+[dependencies.curl]
+version = "0.4.5"
+optional = true

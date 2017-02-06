@@ -11,10 +11,14 @@ extern crate chrono;
 extern crate crypto;
 
 #[macro_use] extern crate hyper;
+#[cfg(feature= "reqwest")]
 #[macro_use] extern crate reqwest;
 
 #[macro_use]
 extern crate log;
+
+#[cfg(feature= "curl")]
+extern crate curl;
 
 pub use config::Credential;
 pub use client::OVHClient;
