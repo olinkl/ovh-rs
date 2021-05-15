@@ -140,14 +140,23 @@ impl Credential {
 
 fn endpoint2host(endpoint: &str) -> String {
     match endpoint.as_ref() {
-        "ovh-eu" => "eu.api.ovh.com".to_string(),
-        "ovh-ca" => "ca.api.ovh.com".to_string(),
+        "ovh-ca" => "ca.api.ovh.com".to_string(), // OVH North America
+        "ovh-eu" => "eu.api.ovh.com".to_string(), // OVH Europe
+        "ovh-us" => "us.api.ovh.com".to_string(), // OVH US
+
+        "soyoustart-ca" => "ca.api.soyoustart.com".to_string(), // So you Start North America
+        "soyoustart-eu" => "eu.api.soyoustart.com".to_string(), // So you Start Europe
+
+        "kimsufi-ca" => "ca.api.kimsufi.com".to_string(), // Kimsufi North America
+        "kimsufi-eu" => "eu.api.kimsufi.com".to_string(), // Kimsufi Europe
+
         _ => "api.ovh.com".to_string(),
     }
 }
 
 #[cfg(test)]
 mod tests {
+    use std::collections::HashMap;
     use super::Credential;
 
     #[test]
@@ -176,6 +185,31 @@ mod tests {
         let cred = Credential::new_from_file("Config.toml.dist");
         let res = cred.host;
         assert_eq!("eu.api.ovh.com", res);
+    }
+
+    #[test]
+    fn test_endpoint2host() {
+
+        let mut test_hosts: HashMap<&str, String> = HashMap::new();
+        test_hosts.insert("ovh-ca", "ca.api.ovh.com".to_string());
+        test_hosts.insert("ovh-eu", "eu.api.ovh.com".to_string());
+        test_hosts.insert("ovh-us", "us.api.ovh.com".to_string());
+        
+        test_hosts.insert("soyoustart-ca", "ca.api.soyoustart.com".to_string());
+        test_hosts.insert("soyoustart-eu", "eu.api.soyoustart.com".to_string());
+
+        test_hosts.insert("kimsufi-ca", "ca.api.kimsufi.com".to_string());
+        test_hosts.insert("kimsufi-eu", "eu.api.kimsufi.com".to_string());
+
+        test_hosts.insert("idontexist-nw", "api.ovh.com".to_string());
+
+        
+        for (endpoint, expected_host) in test_hosts {
+            let cred = Credential::new_with_application(endpoint, "test", "test");
+            assert_eq!(expected_host.to_string(), cred.host);
+        }
+
+
     }
 
 }
